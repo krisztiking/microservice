@@ -1,24 +1,19 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+
+	handlers "github.com/krisztiking/microservices"
 )
 
 func main() {
-	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		log.Println("Hello world!")
-		d, _ := ioutil.ReadAll(r.Body)
+	l := log.New(os.Stdout, "prodict-api", log.LstdFlags)
+	hh := handlers.NewHello(l)
 
-		log.Printf("Data %s\n", d)
-		fmt.Fprintf(rw, "Hello %s", d)
-	})
-
-	http.HandleFunc("/goodbye", func(http.ResponseWriter, *http.Request) {
-		log.Println("Goodbye world!")
-	})
+	sm := http.NewServeMux()
+	sm.Handle("/", hh)
 
 	http.ListenAndServe(":9090", nil)
 }
