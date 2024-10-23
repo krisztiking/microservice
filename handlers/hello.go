@@ -12,10 +12,10 @@ type Hello struct {
 }
 
 func NewHello(l *log.Logger) *Hello {
-	return &Hello{}
+	return &Hello{l}
 }
 
-func (h *Hello) serveHTTP(rw http.ResponseWriter, r *http.Request) {
+func (h *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	h.l.Println("Hello world!")
 
 	d, err := ioutil.ReadAll(r.Body)
@@ -23,6 +23,13 @@ func (h *Hello) serveHTTP(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "Oops", http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
+
+	if len(d) == 0 {
+		http.Error(rw, "Request body cannot be empty", http.StatusBadRequest)
+		return
+	}
+
 	fmt.Fprintf(rw, "Hello %s", d)
 
 }
